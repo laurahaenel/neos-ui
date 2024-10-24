@@ -6,6 +6,8 @@ import {Icon, IconButton, TextInput} from '@neos-project/react-ui-components';
 import {neos} from '@neos-project/neos-ui-decorators';
 
 import AspectRatioDropDown from './AspectRatioDropDown/index';
+import {FocusPointControls, FocusPointIndicator} from './FocusPoint/index';
+import FocusPointConfiguration from './FocusPoint/model';
 import CropConfiguration, {CustomAspectRatioOption, LockedAspectRatioStrategy} from './model.js';
 import dummyImage from '../../Editors/Image/resource/dummy-image.dataurl.svg';
 import style from './style.module.css';
@@ -78,7 +80,9 @@ export default class ImageCropper extends PureComponent {
         cropConfiguration: CropConfiguration.fromNeosConfiguration(
             this.props.sourceImage,
             this.props.options.crop.aspectRatio
-        )
+        ),
+        // todo get initial state, either from saved or center of crop
+        focusPointConfiguration: new FocusPointConfiguration(1, 1)
     };
 
     static propTypes = {
@@ -177,8 +181,23 @@ export default class ImageCropper extends PureComponent {
         onComplete(cropArea, cropAreaAbsolute);
     }
 
+    handleActiveFocusPoint = () => {
+        const {focusPointConfiguration} = this.state;
+        this.setState({
+            focusPointConfiguration: focusPointConfiguration.toggleMode()
+        });
+    }
+
+    handleChangeFocusPoint = (x, y) => {
+        const {cropConfiguration, focusPointConfiguration} = this.state;
+        console.log('cropConfiguration', cropConfiguration);
+        this.setState({
+            focusPointConfiguration: focusPointConfiguration.updatePosition(x, y)
+        })
+    }
+
     render() {
-        const {cropConfiguration} = this.state;
+        const {cropConfiguration, focusPointConfiguration} = this.state;
         const aspectRatioLocked = cropConfiguration.aspectRatioStrategy instanceof LockedAspectRatioStrategy;
         const allowCustomRatios = cropConfiguration.aspectRatioOptions.some(option => option instanceof CustomAspectRatioOption);
         const {sourceImage, i18nRegistry} = this.props;
@@ -228,13 +247,27 @@ export default class ImageCropper extends PureComponent {
                     </div>}
                 </div>
 
+                <FocusPointControls
+                    onClick={this.handleActiveFocusPoint}
+                    onChange={this.handleChangeFocusPoint}
+                    focusPointPosition={focusPointConfiguration.focusPointPosition}
+                    isModeActive={focusPointConfiguration.isModeActive}
+                />
+
                 <ReactCrop
                     src={src}
                     crop={cropConfiguration.cropInformation}
                     onComplete={this.handleCropComplete}
                     onAspectRatioChange={this.handleCropComplete}
                     onImageLoaded={this.handleCropComplete}
-                    />
+                    disabled={focusPointConfiguration.isModeActive}
+                >
+                    <FocusPointIndicator
+                        disabled={!focusPointConfiguration.isModeActive}
+                        position={this.state.focusPointConfiguration.focusPointPosition}
+                        onDrag={(e, data) => this.handleChangeFocusPoint(data.x, data.y)}
+                />
+                </ReactCrop>
             </div>
         );
     }

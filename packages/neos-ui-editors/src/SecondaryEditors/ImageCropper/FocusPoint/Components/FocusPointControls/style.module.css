@@ -1,0 +1,8 @@
+.wrapper {
+    display: flex;
+    position: relative;
+    gap: 1rem;
+    align-items: center;
+    justify-content: center;
+    margin: 1em 0;
+}
