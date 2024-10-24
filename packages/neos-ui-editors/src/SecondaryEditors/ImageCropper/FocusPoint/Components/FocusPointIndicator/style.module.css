@@ -1,0 +1,22 @@
+.wrapper {
+    z-index: 1;
+    height: 50px;
+    width: 50px;
+    background-color: rgba(255, 255, 255, 0.5);
+    border-radius: 100%;
+    border: 1px var(--colors-ContrastBrightest) solid;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    top: 0;
+    left: 0;
+    cursor: pointer;
+}
+
+.indicatorDot{
+    height: 0.5em;
+    width: 0.5em;
+    background-color: var(--colors-ContrastDarker);
+    border-radius: 100%;
+}
