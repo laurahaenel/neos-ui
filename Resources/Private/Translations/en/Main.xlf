@@ -41,6 +41,9 @@
             <trans-unit id="imageCropper__aspect-ratio-placeholder" xml:space="preserve">
                 <source>Choose an Aspect Ratio</source>
             </trans-unit>
+            <trans-unit id="imageCropper__focus-point-controls-title" xml:space="preserve">
+                <source>Set Focus Point</source>
+            </trans-unit>
             <trans-unit id="ckeditor__toolbar__style__p" xml:space="preserve">
                 <source>Paragraph</source>
             </trans-unit>

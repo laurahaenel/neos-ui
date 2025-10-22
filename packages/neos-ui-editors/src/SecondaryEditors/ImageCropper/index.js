@@ -252,6 +252,7 @@ export default class ImageCropper extends PureComponent {
                     onChange={this.handleChangeFocusPoint}
                     focusPointPosition={focusPointConfiguration.focusPointPosition}
                     isModeActive={focusPointConfiguration.isModeActive}
+                    buttonTitle={`${i18nRegistry.translate('Neos.Neos:Main:imageCropper__focus-point-controls-title')}`}
                 />
 
                 <ReactCrop

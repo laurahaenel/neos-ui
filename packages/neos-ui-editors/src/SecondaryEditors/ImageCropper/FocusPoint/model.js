@@ -1,6 +1,5 @@
 export default class FocusPointConfiguration {
     constructor(x, y, isModeActive = false) {
-        // todo should be a new class
         this.__focusPointPosition = {x, y};
         this.__isModeActive = isModeActive;
     }

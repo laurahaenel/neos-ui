@@ -9,11 +9,12 @@ export default class FocusPointControls extends PureComponent {
         onClick: PropTypes.func.isRequired,
         onChange: PropTypes.func.isRequired,
         focusPointPosition: PropTypes.object.isRequired,
-        isModeActive: PropTypes.bool
+        isModeActive: PropTypes.bool,
+        buttonTitle: PropTypes.string.isRequired
     };
 
     render() {
-        const {onClick, onChange, focusPointPosition, isModeActive} = this.props;
+        const {onClick, onChange, focusPointPosition, isModeActive, buttonTitle} = this.props;
         return (
             <div className={style.wrapper}>
                 <IconButton
@@ -21,7 +22,7 @@ export default class FocusPointControls extends PureComponent {
                     onClick={onClick}
                     style={'lighter'}
                     hoverStyle={'brand'}
-                    title={'Focus Point'} // {i18nRegistry.translate('Neos.Neos:Main:crop')}
+                    title={buttonTitle}
                     aria-selected={isModeActive}
                     isActive={isModeActive}
                 />
