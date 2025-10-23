@@ -8,13 +8,14 @@ export default class FocusPointControls extends PureComponent {
     static propTypes = {
         onClick: PropTypes.func.isRequired,
         onChange: PropTypes.func.isRequired,
-        focusPointPosition: PropTypes.object.isRequired,
-        isModeActive: PropTypes.bool,
-        buttonTitle: PropTypes.string.isRequired
+        onDelete: PropTypes.func.isRequired,
+        focusPointOptions: PropTypes.object.isRequired,
+        buttonTitle: PropTypes.string.isRequired,
+        deleteButtonTitle: PropTypes.string.isRequired
     };
 
     render() {
-        const {onClick, onChange, focusPointPosition, isModeActive, buttonTitle} = this.props;
+        const {onClick, onChange, onDelete, focusPointOptions, buttonTitle, deleteButtonTitle} = this.props;
         return (
             <div className={style.wrapper}>
                 <IconButton
@@ -23,21 +24,32 @@ export default class FocusPointControls extends PureComponent {
                     style={'lighter'}
                     hoverStyle={'brand'}
                     title={buttonTitle}
-                    aria-selected={isModeActive}
-                    isActive={isModeActive}
+                    aria-selected={focusPointOptions.active}
+                    isActive={focusPointOptions.active}
                 />
-                <TextInput
-                    type="number"
-                    step="any"
-                    value={focusPointPosition.x}
-                    onChange={e => onChange(parseFloat(e), focusPointPosition.y)}
-                />
-                <TextInput
-                    type="number"
-                    step="any"
-                    value={focusPointPosition.y}
-                    onChange={e => onChange(focusPointPosition.x, parseFloat(e))}
-                />
+                {focusPointOptions.active &&
+                    <>
+                        <TextInput
+                            type="number"
+                            step="any"
+                            min={0}
+                            value={focusPointOptions.x}
+                            onChange={e => onChange(parseFloat(e), focusPointOptions.y)} />
+                        <TextInput
+                            type="number"
+                            step="any"
+                            min={0}
+                            value={focusPointOptions.y}
+                            onChange={e => onChange(focusPointOptions.x, parseFloat(e))} />
+                        <IconButton
+                            icon={'trash'}
+                            onClick={onDelete}
+                            style={'lighter'}
+                            hoverStyle={'brand'}
+                            title={deleteButtonTitle}
+                        />
+                    </>
+                }
             </div>
         )
     }

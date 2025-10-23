@@ -199,10 +199,11 @@ const getGreatestCommonDivisor = memoize(
 );
 
 export default class CropConfiguration {
-    constructor(image, aspectRatioOptions, aspectRatioStrategy) {
+    constructor(image, aspectRatioOptions, aspectRatioStrategy, focusPointOptions) {
         this.__image = image;
         this.__aspectRatioOptions = aspectRatioOptions;
         this.__aspectRatioStrategy = aspectRatioStrategy;
+        this.__focusPointOptions = focusPointOptions;
     }
 
     static fromNeosConfiguration = (image, neosConfiguration) => {
@@ -221,7 +222,8 @@ export default class CropConfiguration {
         return new CropConfiguration(
             image,
             aspectRatioOptions,
-            determineInitialAspectRatioStrategy(image, neosConfiguration)
+            determineInitialAspectRatioStrategy(image, neosConfiguration),
+            {x: 0, y: 0, active: false} // TODO
         );
     };
 
@@ -261,15 +263,20 @@ export default class CropConfiguration {
         const aspectRatio = this.aspectRatioStrategy.aspectRatio
             .map(aspect => ({aspect}))
             .orSome({});
-
+        console.log('get crop but only once?', boundaries);
         return {...boundaries, ...aspectRatio};
+    }
+
+    get focusPointOptions() {
+        return this.__focusPointOptions;
     }
 
     selectAspectRatioOption(option) {
         return new CropConfiguration(
             this.__image,
             this.__aspectRatioOptions,
-            option.getNextAspectRatioStrategy(this)
+            option.getNextAspectRatioStrategy(this),
+            this.__focusPointOptions
         );
     }
 
@@ -277,7 +284,8 @@ export default class CropConfiguration {
         return new CropConfiguration(
             image,
             this.__aspectRatioOptions,
-            this.__aspectRatioStrategy
+            this.__aspectRatioStrategy,
+            this.__focusPointOptions
         );
     }
 
@@ -285,7 +293,38 @@ export default class CropConfiguration {
         return new CropConfiguration(
             this.__image,
             this.__aspectRatioOptions,
-            this.aspectRatioStrategy.setDimensions(width, height)
+            this.aspectRatioStrategy.setDimensions(width, height),
+            this.__focusPointOptions
+        );
+    }
+
+    deleteFocusPoint() {
+        return new CropConfiguration(
+            this.__image,
+            this.__aspectRatioOptions,
+            this.__aspectRatioStrategy,
+            {active: false}
+        );
+    }
+
+    toggleFocusPointMode() {
+        return new CropConfiguration(
+            this.__image,
+            this.__aspectRatioOptions,
+            this.__aspectRatioStrategy,
+            {active: !this.__focusPointOptions.active, x: this.__focusPointOptions.x || 0, y: this.__focusPointOptions.y || 0}
+        );
+    }
+
+    updateFocusPointPosition(x, y) {
+        const {cropInformation} = this;
+        console.log('this', this);
+        const boundedX = Math.min(Math.max(cropInformation.x, x), cropInformation.width + cropInformation.x);
+        const boundedY = Math.min(Math.max(cropInformation.y, y), cropInformation.height + cropInformation.y);
+        return new CropConfiguration(this.__image,
+            this.__aspectRatioOptions,
+            this.__aspectRatioStrategy,
+            {...this.__focusPointOptions, ...{x: boundedX, y: boundedY}}
         );
     }
 
@@ -299,7 +338,8 @@ export default class CropConfiguration {
         return new CropConfiguration(
             this.__image,
             this.__aspectRatioOptions,
-            new NullAspectRatioStrategy('')
+            new NullAspectRatioStrategy(''),
+            this.__focusPointOptions
         );
     }
 }

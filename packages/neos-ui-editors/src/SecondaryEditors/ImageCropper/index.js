@@ -7,7 +7,6 @@ import {neos} from '@neos-project/neos-ui-decorators';
 
 import AspectRatioDropDown from './AspectRatioDropDown/index';
 import {FocusPointControls, FocusPointIndicator} from './FocusPoint/index';
-import FocusPointConfiguration from './FocusPoint/model';
 import CropConfiguration, {CustomAspectRatioOption, LockedAspectRatioStrategy} from './model.js';
 import dummyImage from '../../Editors/Image/resource/dummy-image.dataurl.svg';
 import style from './style.module.css';
@@ -80,9 +79,7 @@ export default class ImageCropper extends PureComponent {
         cropConfiguration: CropConfiguration.fromNeosConfiguration(
             this.props.sourceImage,
             this.props.options.crop.aspectRatio
-        ),
-        // todo get initial state, either from saved or center of crop
-        focusPointConfiguration: new FocusPointConfiguration(1, 1)
+        )
     };
 
     static propTypes = {
@@ -149,6 +146,7 @@ export default class ImageCropper extends PureComponent {
     }
 
     handleCropComplete = (cropArea, cropAreaAbsolute) => {
+        console.log('COMPLETE', cropArea, cropAreaAbsolute);
         const {onComplete, sourceImage, options} = this.props;
         const {cropConfiguration} = this.state;
         const currentAspectRatioStrategy = cropConfiguration.aspectRatioStrategy;
@@ -182,26 +180,35 @@ export default class ImageCropper extends PureComponent {
     }
 
     handleActiveFocusPoint = () => {
-        const {focusPointConfiguration} = this.state;
+        const {cropConfiguration} = this.state;
         this.setState({
-            focusPointConfiguration: focusPointConfiguration.toggleMode()
+            cropConfiguration: cropConfiguration.toggleFocusPointMode()
         });
     }
 
     handleChangeFocusPoint = (x, y) => {
-        const {cropConfiguration, focusPointConfiguration} = this.state;
-        console.log('cropConfiguration', cropConfiguration);
+        const {cropConfiguration} = this.state;
+
         this.setState({
-            focusPointConfiguration: focusPointConfiguration.updatePosition(x, y)
-        })
+            cropConfiguration: cropConfiguration.updateFocusPointPosition(x, y)
+        });
+    }
+
+    handleDeleteFocusPoint = () => {
+        const {cropConfiguration} = this.state;
+        this.setState({
+            cropConfiguration: cropConfiguration.deleteFocusPoint()
+        });
     }
 
     render() {
-        const {cropConfiguration, focusPointConfiguration} = this.state;
+        const {cropConfiguration} = this.state;
         const aspectRatioLocked = cropConfiguration.aspectRatioStrategy instanceof LockedAspectRatioStrategy;
         const allowCustomRatios = cropConfiguration.aspectRatioOptions.some(option => option instanceof CustomAspectRatioOption);
         const {sourceImage, i18nRegistry} = this.props;
         const src = sourceImage.previewUri || dummyImage;
+
+        console.log('cropConfiguration', cropConfiguration);
 
         const toolbarRef = el => {
             this.toolbarNode = el;
@@ -250,9 +257,10 @@ export default class ImageCropper extends PureComponent {
                 <FocusPointControls
                     onClick={this.handleActiveFocusPoint}
                     onChange={this.handleChangeFocusPoint}
-                    focusPointPosition={focusPointConfiguration.focusPointPosition}
-                    isModeActive={focusPointConfiguration.isModeActive}
+                    onDelete={this.handleDeleteFocusPoint}
+                    focusPointOptions={cropConfiguration.focusPointOptions}
                     buttonTitle={`${i18nRegistry.translate('Neos.Neos:Main:imageCropper__focus-point-controls-title')}`}
+                    deleteButtonTitle={`${i18nRegistry.translate('Neos.Neos:Main:imageCropper__focus-point-controls-delete-title')}`}
                 />
 
                 <ReactCrop
@@ -261,13 +269,14 @@ export default class ImageCropper extends PureComponent {
                     onComplete={this.handleCropComplete}
                     onAspectRatioChange={this.handleCropComplete}
                     onImageLoaded={this.handleCropComplete}
-                    disabled={focusPointConfiguration.isModeActive}
                 >
-                    <FocusPointIndicator
-                        disabled={!focusPointConfiguration.isModeActive}
-                        position={this.state.focusPointConfiguration.focusPointPosition}
-                        onDrag={(e, data) => this.handleChangeFocusPoint(data.x, data.y)}
-                />
+                    {cropConfiguration.focusPointOptions.active &&
+                        <FocusPointIndicator
+                            disabled={!cropConfiguration.focusPointOptions.active}
+                            position={cropConfiguration.focusPointOptions}
+                            onDrag={(e, data) => this.handleChangeFocusPoint(data.x, data.y)}
+                        />
+                    }
                 </ReactCrop>
             </div>
         );

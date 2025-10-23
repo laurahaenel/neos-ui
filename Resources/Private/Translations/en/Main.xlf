@@ -44,6 +44,9 @@
             <trans-unit id="imageCropper__focus-point-controls-title" xml:space="preserve">
                 <source>Set Focus Point</source>
             </trans-unit>
+            <trans-unit id="imageCropper__focus-point-controls-delete-title" xml:space="preserve">
+                <source>Delete Focus Point</source>
+            </trans-unit>
             <trans-unit id="ckeditor__toolbar__style__p" xml:space="preserve">
                 <source>Paragraph</source>
             </trans-unit>
